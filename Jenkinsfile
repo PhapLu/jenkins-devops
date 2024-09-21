@@ -1,7 +1,7 @@
 pipeline {
     agent any
     stages {
-        satge('Clone'){
+        stage('Clone'){
             steps {
                 git 'https://github.com/PhapLu/jenkins-devops.git'
             }
