@@ -7,8 +7,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Replace with your Docker image name
-        DOCKER_REGISTRY = 'https://index.docker.io/v1/' // Docker Hub registry URL
-        DOCKER_CREDENTIALS_ID = 'docker-hub' // Replace with your Docker credentials ID
+        DOCKER_CREDENTIALS_ID = 'docker-hub' // The ID of your Docker Hub credentials in Jenkins
     }
 
     stages {
@@ -35,8 +34,11 @@ pipeline {
                 script {
                     echo 'Building and pushing Docker image...'
 
-                    // Using withDockerRegistry for Docker authentication
-                    docker.withDockerRegistry(url: "${DOCKER_REGISTRY}", credentialsId: "${DOCKER_CREDENTIALS_ID}") {
+                    // Using withCredentials for Docker login
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Manually login to Docker Hub
+                        sh "echo '${DOCKER_PASSWORD}' | docker login -u '${DOCKER_USERNAME}' --password-stdin"
+
                         // Build Docker image
                         sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
 
