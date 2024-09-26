@@ -36,8 +36,12 @@ pipeline {
 
                     // Using withCredentials for Docker login
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        // Manually login to Docker Hub
-                        sh "echo '${DOCKER_PASSWORD}' | docker login -u '${DOCKER_USERNAME}' --password-stdin"
+                        // Disable Docker TLS cert validation (if applicable)
+                        sh '''
+                            export DOCKER_TLS_VERIFY=""
+                            export DOCKER_CERT_PATH=""
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                        '''
 
                         // Build Docker image
                         sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
