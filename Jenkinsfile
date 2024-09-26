@@ -19,9 +19,7 @@
 
 pipeline {
     agent { 
-        node {
-            label 'any'
-            }
+        any
       }
     triggers {
         pollSCM('H/5 * * * *')
