@@ -6,8 +6,8 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Replace with your Docker image name
-        DOCKER_CREDENTIALS_ID = 'docker-hub' // The ID of your Docker Hub credentials in Jenkins
+        DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
+        DOCKER_CREDENTIALS_ID = 'docker-hub' // Your Docker credentials ID in Jenkins
     }
 
     stages {
@@ -34,20 +34,13 @@ pipeline {
                 script {
                     echo 'Building and pushing Docker image...'
 
-                    // Using withCredentials for Docker login
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        // Disable Docker TLS cert validation (if applicable)
-                        sh '''
-                            export DOCKER_TLS_VERIFY=""
-                            export DOCKER_CERT_PATH=""
-                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                        '''
-
+                    // Using docker.withRegistry for Docker Hub authentication
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
                         // Build Docker image
-                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").build(".")
 
                         // Push Docker image to Docker Hub
-                        sh "docker push ${DOCKER_IMAGE}:${env.BUILD_ID}"
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
                     }
                 }
             }
@@ -78,6 +71,7 @@ pipeline {
         }
     }
 }
+
 
 // pipeline {
 //     agent any
