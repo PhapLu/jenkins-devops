@@ -7,4 +7,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+console.log('HELLO WORLD')
+
 export default app;
