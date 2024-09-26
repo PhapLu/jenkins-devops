@@ -14,15 +14,19 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                echo 'Installing Node.js dependencies...'
-                sh 'npm install'
+                dir('server') { // Change directory to 'server'
+                    echo 'Installing Node.js dependencies...'
+                    sh 'npm install'
+                }
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building the app for production...'
-                sh 'npm run build'
+                dir('server') { // Change directory to 'server'
+                    echo 'Building the app for production...'
+                    sh 'npm run build'
+                }
             }
         }
 
@@ -52,9 +56,11 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
-                // Add actual test command here, for example:
-                // sh 'npm test'
+                dir('server') { // Change directory to 'server'
+                    echo 'Running tests...'
+                    // Add actual test command here, for example:
+                    // sh 'npm test'
+                }
             }
         }
     }
@@ -68,6 +74,7 @@ pipeline {
         }
     }
 }
+
 
 
 
