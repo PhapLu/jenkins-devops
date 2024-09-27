@@ -35,7 +35,7 @@ pipeline {
                     echo 'Building and pushing Docker image...'
 
                     // Using docker.withRegistry for Docker Hub authentication
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
+                    docker.withRegistry('https://index.docker.io/v2/', "${DOCKER_CREDENTIALS_ID}") {
                         
                         // Build Docker image and tag it with the current BUILD_ID
                         def appImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
