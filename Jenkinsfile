@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS 18' // Node.js version configured in Global Tool Configuration
+        nodejs 'NodeJS 18' // Ensure Node.js is installed
     }
 
     environment {
-        DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
-        DOCKER_CREDENTIALS_ID = 'docker-hub' // Your Docker credentials ID in Jenkins
+        DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Docker image name
+        DOCKER_CREDENTIALS_ID = 'docker-hub' // Jenkins credentials ID for Docker Hub
     }
 
     stages {
@@ -23,7 +23,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('server') { 
-                    echo 'Building the app for production...'
+                    echo 'Building the app...'
                     sh 'npm run build'
                 }
             }
@@ -34,14 +34,15 @@ pipeline {
                 script {
                     echo 'Building and pushing Docker image...'
 
-                    // Using docker.withRegistry for Docker Hub authentication
-                    docker.withRegistry('https://index.docker.io/v2/', "${DOCKER_CREDENTIALS_ID}") {
-                        
-                        // Build Docker image and tag it with the current BUILD_ID
-                        def appImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
-                        
+                    // Authenticate to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+
+                        // Build Docker image
+                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
+
                         // Push Docker image to Docker Hub
-                        appImage.push()
+                        sh "docker push ${DOCKER_IMAGE}:${env.BUILD_ID}"
                     }
                 }
             }
@@ -55,10 +56,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir('server') {
-                    echo 'Running tests...'
-                    // Add actual test command here
-                }
+                echo 'Running tests...'
             }
         }
     }
