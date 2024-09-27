@@ -1,15 +1,14 @@
 pipeline {
     agent any
-
     tools {
-        nodejs 'NodeJS 18' // Ensure Node.js is installed
+        nodejs 'NodeJS 18' // Use your configured Node.js version
     }
-
     environment {
-        DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Docker image name
-        DOCKER_CREDENTIALS_ID = 'docker-hub' // Jenkins credentials ID for Docker Hub
+        DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
+        DOCKER_CREDENTIALS_ID = 'docker-hub' // Your Docker credentials ID
+        DOCKER_TLS_VERIFY = '' // Disable TLS
+        DOCKER_CERT_PATH = '' // Ensure no TLS certificates are used
     }
-
     stages {
         stage('Install Dependencies') {
             steps {
@@ -19,48 +18,43 @@ pipeline {
                 }
             }
         }
-
         stage('Build') {
             steps {
                 dir('server') { 
-                    echo 'Building the app...'
+                    echo 'Building the app for production...'
                     sh 'npm run build'
                 }
             }
         }
-
         stage('Docker Build & Push') {
             steps {
                 script {
                     echo 'Building and pushing Docker image...'
-
-                    // Authenticate to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-
-                        // Build Docker image
-                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
-
-                        // Push Docker image to Docker Hub
-                        sh "docker push ${DOCKER_IMAGE}:${env.BUILD_ID}"
-                    }
+                    
+                    // Disable TLS temporarily and authenticate Docker Hub
+                    sh '''
+                    export DOCKER_TLS_VERIFY=""
+                    export DOCKER_CERT_PATH=""
+                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                    docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} .
+                    docker push ${DOCKER_IMAGE}:${env.BUILD_ID}
+                    '''
                 }
             }
         }
-
         stage('Deploy to QA') {
             steps {
                 echo 'Deploying to QA environment...'
             }
         }
-
         stage('Test') {
             steps {
-                echo 'Running tests...'
+                dir('server') {
+                    echo 'Running tests...'
+                }
             }
         }
     }
-
     post {
         success {
             echo 'Pipeline completed successfully!'
