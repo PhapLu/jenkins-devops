@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     tools {
         nodejs 'NodeJS 18' // Node.js version configured in Global Tool Configuration
     }
@@ -71,7 +72,6 @@ pipeline {
         }
     }
 }
-
 
 // pipeline {
 //     agent any
