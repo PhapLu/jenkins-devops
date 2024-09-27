@@ -36,11 +36,12 @@ pipeline {
 
                     // Using docker.withRegistry for Docker Hub authentication
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
-                        // Build Docker image
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").build(".")
-
+                        
+                        // Build Docker image and tag it with the current BUILD_ID
+                        def appImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                        
                         // Push Docker image to Docker Hub
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
+                        appImage.push()
                     }
                 }
             }
