@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'jenkins/agent-alpine-jdk11' // Using Alpine Linux as Docker agent
-            label 'docker-agent-alpine' // Agent label to ensure correct node is selected
+            image 'jenkins/inbound-agent' // Using Alpine Linux as Docker agent
+            label 'docker-agent' // Agent label to ensure correct node is selected
         }
     }
     tools {
