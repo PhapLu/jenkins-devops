@@ -1,13 +1,11 @@
 pipeline {
     agent any
     tools {
-        nodejs 'NodeJS 18' // Use your configured Node.js version
+        nodejs 'NodeJS 18' // Your configured Node.js version
     }
     environment {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
         DOCKER_CREDENTIALS_ID = 'docker-hub' // Your Docker credentials ID
-        DOCKER_TLS_VERIFY = '' // Disable TLS
-        DOCKER_CERT_PATH = '' // Ensure no TLS certificates are used
     }
     stages {
         stage('Install Dependencies') {
@@ -31,10 +29,8 @@ pipeline {
                 script {
                     echo 'Building and pushing Docker image...'
                     
-                    // Disable TLS temporarily and authenticate Docker Hub
+                    // Use the same commands you are running manually, without changing TLS settings
                     sh '''
-                    export DOCKER_TLS_VERIFY=""
-                    export DOCKER_CERT_PATH=""
                     docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                     docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} .
                     docker push ${DOCKER_IMAGE}:${env.BUILD_ID}
