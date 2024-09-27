@@ -1,6 +1,10 @@
 pipeline {
-    agent any
-
+    agent {
+        docker {
+            image 'jenkins/agent-alpine-jdk11' // Using Alpine Linux as Docker agent
+            label 'docker-agent-alpine' // Agent label to ensure correct node is selected
+        }
+    }
     tools {
         nodejs 'NodeJS 18' // Node.js version configured in Global Tool Configuration
     }
