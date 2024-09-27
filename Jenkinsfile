@@ -1,11 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'jenkins/inbound-agent' // The Docker image you want to use
-            label 'docker-agent' // This label should match the one in your agent configuration
-            args '-v /var/run/docker.sock:/var/run/docker.sock' // Ensure Docker commands can be run inside the agent
-        }
-    }
+    agent any
     tools {
         nodejs 'NodeJS 18' // Node.js version configured in Global Tool Configuration
     }
