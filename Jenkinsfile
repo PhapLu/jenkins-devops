@@ -30,7 +30,7 @@ pipeline {
                 script {
                     echo 'Building and pushing Docker image...'
                     try {
-                        docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_CREDENTIALS_ID') {
+                        docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
                             def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
                             customImage.push()
                         }
