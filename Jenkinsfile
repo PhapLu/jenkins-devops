@@ -7,6 +7,7 @@ pipeline {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
         DOCKER_CREDENTIALS_ID = 'docker-hub' // Your Docker credentials ID
     }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -28,25 +29,24 @@ pipeline {
             steps {
                 script {
                     echo 'Building and pushing Docker image...'
-                    
-                    // Use the same commands you are running manually, without changing TLS settings
-                    sh '''
-                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                    docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} .
-                    docker push ${DOCKER_IMAGE}:${env.BUILD_ID}
-                    '''
+                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_CREDENTIALS_ID') {
+                        def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                        customImage.push()
+                    }
                 }
             }
         }
         stage('Deploy to QA') {
             steps {
                 echo 'Deploying to QA environment...'
+                // Implement deployment steps or scripts
             }
         }
         stage('Test') {
             steps {
                 dir('server') {
                     echo 'Running tests...'
+                    sh 'npm test'
                 }
             }
         }
