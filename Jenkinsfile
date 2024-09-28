@@ -14,6 +14,15 @@ pipeline {
         pollSCM('H/5 * * * *') // Poll every 5 minutes
     }
     stages {
+        stage('Unset Docker TLS') {
+            steps {
+                script {
+                    // Forcefully unset TLS-related environment variables
+                    sh 'unset DOCKER_TLS_VERIFY'
+                    sh 'unset DOCKER_CERT_PATH'
+                }
+            }
+        }
         stage('Debug Docker Environment') {
             steps {
                 // Debug the environment variables to make sure Docker is correctly set up
