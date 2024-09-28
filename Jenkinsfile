@@ -31,7 +31,7 @@ pipeline {
                     echo 'Building and pushing Docker image...'
                     try {
                         // Ensure the Docker registry and credentials ID are correctly set
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { // Use the ID you configured in Jenkins credentials
+                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') { // Use the ID you configured in Jenkins credentials
                             // Build the Docker image and tag it with the build ID
                             def customImage = docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}")
                             // Push the built image to the Docker registry
