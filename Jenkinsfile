@@ -29,9 +29,14 @@ pipeline {
             steps {
                 script {
                     echo 'Building and pushing Docker image...'
-                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_CREDENTIALS_ID') {
-                        def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
-                        customImage.push()
+                    try {
+                        docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_CREDENTIALS_ID') {
+                            def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                            customImage.push()
+                        }
+                    } catch (Exception e) {
+                        echo "Error during Docker build and push: ${e.message}"
+                        throw e // Re-throw exception to fail the build
                     }
                 }
             }
