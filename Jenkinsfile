@@ -7,6 +7,8 @@ pipeline {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
         DOCKER_CREDENTIALS_ID = 'docker-cre' // Your Docker credentials ID
         DOCKER_HOST = "tcp://host.docker.internal:2375" // Docker Daemon exposed on TCP
+        DOCKER_TLS_VERIFY = ""
+        DOCKER_CERT_PATH = ""
     }
     triggers {
         pollSCM('H/5 * * * *') // Poll every 5 minutes
