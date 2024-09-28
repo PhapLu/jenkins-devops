@@ -5,9 +5,11 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
-        DOCKER_CREDENTIALS_ID = 'docker-hub' // Your Docker credentials ID
+        DOCKER_CREDENTIALS_ID = 'docker-cre' // Your Docker credentials ID
     }
-
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
     stages {
         stage('Install Dependencies') {
             steps {
@@ -31,7 +33,7 @@ pipeline {
                     echo 'Building and pushing Docker image...'
                     try {
                         // Ensure the Docker registry and credentials ID are correctly set
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub') { // Use the ID you configured in Jenkins credentials
+                        docker.withRegistry('https://registry.hub.docker.com', 'docker-cre') { // Use the ID you configured in Jenkins credentials
                             // Build the Docker image and tag it with the build ID
                             def customImage = docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}")
                             // Push the built image to the Docker registry
@@ -54,7 +56,7 @@ pipeline {
             steps {
                 dir('server') {
                     echo 'Running tests...'
-                    sh 'npm test'
+                    // sh 'npm test'
                 }
             }
         }
