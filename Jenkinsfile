@@ -30,13 +30,16 @@ pipeline {
                 script {
                     echo 'Building and pushing Docker image...'
                     try {
-                        docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
-                            def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                        // Ensure the Docker registry and credentials ID are correctly set
+                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { // Use the ID you configured in Jenkins credentials
+                            // Build the Docker image and tag it with the build ID
+                            def customImage = docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}")
+                            // Push the built image to the Docker registry
                             customImage.push()
                         }
                     } catch (Exception e) {
                         echo "Error during Docker build and push: ${e.message}"
-                        throw e // Re-throw exception to fail the build
+                        throw e // This will cause the build to fail and the error to be logged
                     }
                 }
             }
