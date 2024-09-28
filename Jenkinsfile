@@ -7,13 +7,21 @@ pipeline {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
         DOCKER_CREDENTIALS_ID = 'docker-cre' // Your Docker credentials ID
         DOCKER_HOST = "tcp://host.docker.internal:2375" // Docker Daemon exposed on TCP
-        DOCKER_TLS_VERIFY = ""
-        DOCKER_CERT_PATH = ""
+        DOCKER_TLS_VERIFY = "" // Disable TLS
+        DOCKER_CERT_PATH = "" // Clear certificate path
     }
     triggers {
         pollSCM('H/5 * * * *') // Poll every 5 minutes
     }
     stages {
+        stage('Debug Docker Environment') {
+            steps {
+                // Debug the environment variables to make sure Docker is correctly set up
+                sh 'echo "DOCKER_HOST=$DOCKER_HOST"'
+                sh 'echo "DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY"'
+                sh 'echo "DOCKER_CERT_PATH=$DOCKER_CERT_PATH"'
+            }
+        }
         stage('Install Dependencies') {
             steps {
                 dir('server') { 
@@ -34,17 +42,11 @@ pipeline {
             steps {
                 script {
                     echo 'Building and pushing Docker image...'
-                    try {
-                        // Ensure the Docker registry and credentials ID are correctly set
-                        docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
-                            // Build the Docker image and tag it with the build ID
-                            def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
-                            // Push the built image to the Docker registry
-                            customImage.push()
-                        }
-                    } catch (Exception e) {
-                        echo "Error during Docker build and push: ${e.message}"
-                        throw e // This will cause the build to fail and the error to be logged
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
+                        // Build the Docker image and tag it with the build ID
+                        def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                        // Push the built image to the Docker registry
+                        customImage.push()
                     }
                 }
             }
@@ -52,7 +54,7 @@ pipeline {
         stage('Deploy to QA') {
             steps {
                 echo 'Deploying to QA environment...'
-                // Implement deployment steps or scripts
+                // Implement your QA deployment logic here
             }
         }
         stage('Test') {
