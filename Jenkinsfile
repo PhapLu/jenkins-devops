@@ -6,7 +6,6 @@ pipeline {
     environment {
         DOCKER_IMAGE = "adamlil2404/nodejs-ci-cd-demo" // Your Docker image name
         DOCKER_CREDENTIALS_ID = 'docker-cre' // Your Docker credentials ID
-        DOCKER_HOST = "tcp://host.docker.internal:2375" // Docker Daemon exposed on TCP
     }
     triggers {
         pollSCM('H/5 * * * *') // Poll every 5 minutes
@@ -32,13 +31,12 @@ pipeline {
             steps {
                 script {
                     echo 'Building and pushing Docker image...'
-                    withEnv(['DOCKER_TLS_VERIFY=', 'DOCKER_CERT_PATH=']) { // Forcefully unset in this stage
-                        docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
-                            // Build the Docker image and tag it with the build ID
-                            def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
-                            // Push the built image to the Docker registry
-                            customImage.push()
-                        }
+                    // No need for DOCKER_TLS_VERIFY or DOCKER_CERT_PATH with socket method
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
+                        // Build the Docker image and tag it with the build ID
+                        def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                        // Push the built image to the Docker registry
+                        customImage.push()
                     }
                 }
             }
@@ -68,6 +66,7 @@ pipeline {
         }
     }
 }
+
 
 // pipeline {
 //     agent any
