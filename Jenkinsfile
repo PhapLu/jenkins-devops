@@ -31,11 +31,9 @@ pipeline {
             steps {
                 script {
                     echo 'Building and pushing Docker image...'
-                    // No need for DOCKER_TLS_VERIFY or DOCKER_CERT_PATH with socket method
                     docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
-                        // Build the Docker image and tag it with the build ID
-                        def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
-                        // Push the built image to the Docker registry
+                        // Adjust the context and path to the Dockerfile
+                        def customImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}", "server/")
                         customImage.push()
                     }
                 }
